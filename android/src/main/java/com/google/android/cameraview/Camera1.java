@@ -32,10 +32,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
 @SuppressWarnings("deprecation")
-class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
-                                                MediaRecorder.OnErrorListener, Camera.PreviewCallback {
+class Camera1 extends CameraViewImpl
+        implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener, Camera.PreviewCallback {
 
     private static final int INVALID_CAMERA_ID = -1;
 
@@ -52,12 +51,12 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private static final SparseArrayCompat<String> WB_MODES = new SparseArrayCompat<>();
 
     static {
-      WB_MODES.put(Constants.WB_AUTO, Camera.Parameters.WHITE_BALANCE_AUTO);
-      WB_MODES.put(Constants.WB_CLOUDY, Camera.Parameters.WHITE_BALANCE_CLOUDY_DAYLIGHT);
-      WB_MODES.put(Constants.WB_SUNNY, Camera.Parameters.WHITE_BALANCE_DAYLIGHT);
-      WB_MODES.put(Constants.WB_SHADOW, Camera.Parameters.WHITE_BALANCE_SHADE);
-      WB_MODES.put(Constants.WB_FLUORESCENT, Camera.Parameters.WHITE_BALANCE_FLUORESCENT);
-      WB_MODES.put(Constants.WB_INCANDESCENT, Camera.Parameters.WHITE_BALANCE_INCANDESCENT);
+        WB_MODES.put(Constants.WB_AUTO, Camera.Parameters.WHITE_BALANCE_AUTO);
+        WB_MODES.put(Constants.WB_CLOUDY, Camera.Parameters.WHITE_BALANCE_CLOUDY_DAYLIGHT);
+        WB_MODES.put(Constants.WB_SUNNY, Camera.Parameters.WHITE_BALANCE_DAYLIGHT);
+        WB_MODES.put(Constants.WB_SHADOW, Camera.Parameters.WHITE_BALANCE_SHADE);
+        WB_MODES.put(Constants.WB_FLUORESCENT, Camera.Parameters.WHITE_BALANCE_FLUORESCENT);
+        WB_MODES.put(Constants.WB_INCANDESCENT, Camera.Parameters.WHITE_BALANCE_INCANDESCENT);
     }
 
     private int mCameraId;
@@ -113,7 +112,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
             @Override
             public void onSurfaceDestroyed() {
-              stop();
+                stop();
             }
         });
     }
@@ -331,8 +330,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @Override
     void takePicture() {
         if (!isCameraOpened()) {
-            throw new IllegalStateException(
-                    "Camera is not ready. Call start() before takePicture().");
+            throw new IllegalStateException("Camera is not ready. Call start() before takePicture().");
         }
         if (getAutoFocus()) {
             mCamera.cancelAutoFocus();
@@ -399,7 +397,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         mDisplayOrientation = displayOrientation;
         if (isCameraOpened()) {
             mCameraParameters.setRotation(calcCameraRotation(displayOrientation));
-            mCamera.setParameters(mCameraParameters);
+            // FIXME: this will crash when recordign and tracking orientation
+            // mCamera.setParameters(mCameraParameters);
             final boolean needsToStopPreview = mShowingPreview && Build.VERSION.SDK_INT < 14;
             if (needsToStopPreview) {
                 mCamera.stopPreview();
@@ -573,7 +572,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private int calcDisplayOrientation(int screenOrientationDegrees) {
         if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             return (360 - (mCameraInfo.orientation + screenOrientationDegrees) % 360) % 360;
-        } else {  // back-facing
+        } else { // back-facing
             return (mCameraInfo.orientation - screenOrientationDegrees + 360) % 360;
         }
     }
@@ -581,8 +580,9 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     /**
      * Calculate camera rotation
      *
-     * This calculation is applied to the output JPEG either via Exif Orientation tag
-     * or by actually transforming the bitmap. (Determined by vendor camera API implementation)
+     * This calculation is applied to the output JPEG either via Exif Orientation
+     * tag or by actually transforming the bitmap. (Determined by vendor camera API
+     * implementation)
      *
      * Note: This is not the same calculation as the display orientation
      *
@@ -592,7 +592,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private int calcCameraRotation(int screenOrientationDegrees) {
         if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             return (mCameraInfo.orientation + screenOrientationDegrees) % 360;
-        } else {  // back-facing
+        } else { // back-facing
             final int landscapeFlip = isLandscape(screenOrientationDegrees) ? 180 : 0;
             return (mCameraInfo.orientation + screenOrientationDegrees + landscapeFlip) % 360;
         }
@@ -605,8 +605,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * @return True if in landscape, false if portrait
      */
     private boolean isLandscape(int orientationDegrees) {
-        return (orientationDegrees == Constants.LANDSCAPE_90 ||
-                orientationDegrees == Constants.LANDSCAPE_270);
+        return (orientationDegrees == Constants.LANDSCAPE_90 || orientationDegrees == Constants.LANDSCAPE_270);
     }
 
     /**
@@ -713,7 +712,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         mCallback.onFramePreview(data, previewSize.width, previewSize.height, mDisplayOrientation);
     }
 
-    private void setUpMediaRecorder(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile) {
+    private void setUpMediaRecorder(String path, int maxDuration, int maxFileSize, boolean recordAudio,
+            CamcorderProfile profile) {
         mMediaRecorder = new MediaRecorder();
         mCamera.unlock();
 
@@ -784,12 +784,11 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     public void onInfo(MediaRecorder mr, int what, int extra) {
-        if ( what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED ||
-              what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
+        if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED
+                || what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
             stopRecording();
         }
     }
-
 
     @Override
     public void onError(MediaRecorder mr, int what, int extra) {
